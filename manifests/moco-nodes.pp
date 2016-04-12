@@ -219,6 +219,13 @@ node /dev-linux64-ec2-001.dev.releng.use1.mozilla.com/ {
     }
 }
 
+node /cruncher-aws\.srv\.releng\.(use1|usw2)\.mozilla\.com/ {
+    $pin_puppet_server = "releng-puppet2.srv.releng.scl3.mozilla.com"
+    $pin_puppet_env = "coop"
+    $node_security_level = 'high'
+    include toplevel::server::cruncher
+}
+
 # aws-manager
 
 node /aws-manager\d+\.srv\.releng\.scl3\.mozilla\.com/ {
