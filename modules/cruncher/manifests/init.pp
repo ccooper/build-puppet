@@ -8,8 +8,5 @@ class cruncher {
     include cruncher::slave_health
     include cruncher::reportor
     include cruncher::allthethings
-<<<<<<< HEAD
-=======
     include cruncher::cron
->>>>>>> upstream/master
 }
