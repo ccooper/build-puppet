@@ -49,11 +49,7 @@ class cruncher::reportor {
             ],
             creates => "/home/build/reportor/bin/reportor";
     }
-<<<<<<< HEAD
 
-=======
-
->>>>>>> upstream/master
     file {
         "/home/buildduty/reportor/bin/reportor.sh":
             content => template("cruncher/reportor.sh.erb"),
