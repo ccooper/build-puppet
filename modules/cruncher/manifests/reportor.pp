@@ -55,13 +55,7 @@ class cruncher::reportor {
             content => template("cruncher/reportor.sh.erb"),
             owner =>  "${users::buildduty::username}",
             group =>  "${users::buildduty::group}",
-<<<<<<< HEAD
             mode => 755,
-            require => [
-                Exec["reportor-setup"],
-            ];
-=======
-            mode => 0755,
             require => [
                 Exec["reportor-setup"],
             ];
