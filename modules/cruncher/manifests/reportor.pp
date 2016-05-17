@@ -30,12 +30,9 @@ class cruncher::reportor {
             group => "${users::buildduty::group}",
             packages => [
                 "requests",
-<<<<<<< HEAD
-=======
                 "SQLAlchemy",
                 "simplejson",
                 "MySQL-python",
->>>>>>> upstream/master
             ];
     }
 
@@ -53,7 +50,7 @@ class cruncher::reportor {
             creates => "/home/build/reportor/bin/reportor";
     }
 <<<<<<< HEAD
-   
+
 =======
 
 >>>>>>> upstream/master
