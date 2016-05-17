@@ -30,6 +30,12 @@ class cruncher::reportor {
             group => "${users::buildduty::group}",
             packages => [
                 "requests",
+<<<<<<< HEAD
+=======
+                "SQLAlchemy",
+                "simplejson",
+                "MySQL-python",
+>>>>>>> upstream/master
             ];
     }
 
@@ -46,15 +52,35 @@ class cruncher::reportor {
             ],
             creates => "/home/build/reportor/bin/reportor";
     }
+<<<<<<< HEAD
    
+=======
+
+>>>>>>> upstream/master
     file {
         "/home/buildduty/reportor/bin/reportor.sh":
             content => template("cruncher/reportor.sh.erb"),
             owner =>  "${users::buildduty::username}",
             group =>  "${users::buildduty::group}",
+<<<<<<< HEAD
             mode => 755,
             require => [
                 Exec["reportor-setup"],
             ];
+=======
+            mode => 0755,
+            require => [
+                Exec["reportor-setup"],
+            ];
+        "/home/buildduty/reportor/reports/credentials.ini":
+            content => template("cruncher/reportor_credentials.ini.erb"),
+            owner =>  "${users::buildduty::username}",
+            group =>  "${users::buildduty::group}",
+            mode => 0600,
+            require => [
+                Exec["reportor-setup"],
+            ];
+
+>>>>>>> upstream/master
     }
 }

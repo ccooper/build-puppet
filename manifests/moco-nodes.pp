@@ -28,13 +28,20 @@ node /t-w732.*\.(wintest|test)\.releng\.(scl3|use1|usw2)\.mozilla.com/{
     $slave_trustlevel = 'try'
     include toplevel::slave
 }
+node /g-w732.*\.(wintest|test)\.releng\.(scl3|use1|usw2)\.mozilla.com/{
+    # windows 7 nodes in wintest.releng.scl3.mozilla.com
+    $aspects = [ 'low-security' ]
+    $slave_trustlevel = 'try'
+    include toplevel::slave
+}
+
 # Node declaration is for Win 7 development
 # To keep development and production catalogs separate
 node /d-w732.*\.(wintest|test)\.releng\.(scl3|use1|usw2)\.mozilla.com/{
     # windows 7 nodes in wintest.releng.scl3.mozilla.com
     $aspects = [ 'low-security' ]
     $slave_trustlevel = 'try'
-    include toplevel::slave::releng
+    include toplevel::slave::releng::test
 }
 
 node /t-w1064.*\.(wintest|test)\.releng\.(scl3|use1|usw2)\.mozilla.com/{
@@ -131,12 +138,12 @@ node /(mac-(v2-|)|)signing\d+\.srv\.releng\.scl3\.mozilla\.com/ {
 ## puppetmasters
 
 node /releng-puppet\d+\.srv\.releng\.(scl3|use1|usw2)\.mozilla\.com/ {
-    $aspects = [ 'high-security' ]
+    $aspects = [ 'maximum-security' ]
     include toplevel::server::puppetmaster
 }
 
 node "releng-puppet2.srv.releng.scl3.mozilla.com" {
-    $aspects = [ 'high-security' ]
+    $aspects = [ 'maximum-security' ]
     include toplevel::server::puppetmaster
     class {
         'bacula_client':
@@ -148,7 +155,7 @@ node "releng-puppet2.srv.releng.scl3.mozilla.com" {
 ## deploystudio servers
 
 node "install.build.releng.scl3.mozilla.com" {
-    $aspects = [ "high-security" ]
+    $aspects = [ "maximum-security" ]
     include toplevel::server::deploystudio
     class {
         'bacula_client':
@@ -158,7 +165,7 @@ node "install.build.releng.scl3.mozilla.com" {
 }
 
 node "install.test.releng.scl3.mozilla.com" {
-    $aspects = [ "high-security" ]
+    $aspects = [ "maximum-security" ]
     include toplevel::server::deploystudio
     class {
         'bacula_client':
@@ -220,8 +227,6 @@ node /dev-linux64-ec2-001.dev.releng.use1.mozilla.com/ {
 }
 
 node /cruncher-aws\.srv\.releng\.(use1|usw2)\.mozilla\.com/ {
-    $pin_puppet_server = "releng-puppet2.srv.releng.scl3.mozilla.com"
-    $pin_puppet_env = "coop"
     $node_security_level = 'high'
     include toplevel::server::cruncher
 }
@@ -231,6 +236,24 @@ node /cruncher-aws\.srv\.releng\.(use1|usw2)\.mozilla\.com/ {
 node /aws-manager\d+\.srv\.releng\.scl3\.mozilla\.com/ {
     $aspects = [ 'high-security' ]
     include toplevel::server::aws_manager
+
+    # Bug 1265758 - Add acccess to the following accounts to dev-master2
+    realize(Users::Person["ashiue"])
+    realize(Users::Person["gchang"])
+    realize(Users::Person["ihsiao"])
+
+    users::buildduty::extra_authorized_key {
+        'ashiue': ;
+        'gchang': ;
+        'ihsiao': ;
+    }
+}
+
+# buildduty-tools
+
+node /buildduty-tools\.srv\.releng\.(use1|usw2)\.mozilla\.com/ {
+    include toplevel::server::buildduty_tools
+    $aspects = [ 'medium-security' ]
 }
 
 # slaveapi
@@ -266,8 +289,12 @@ node "dev-master2.bb.releng.use1.mozilla.com" {
     include toplevel::server::buildmaster::mozilla
 
     # Bug 975004 - Grant pkewisch access to dev-master1
+    # Bug 1265758 - Add acccess to the following accounts to dev-master2
     realize(Users::Person["pkewisch"])
     realize(Users::Person["sledru"])
+    realize(Users::Person["ashiue"])
+    realize(Users::Person["gchang"])
+    realize(Users::Person["ihsiao"])
     users::root::extra_authorized_key {
         'pkewisch': ;
         'sledru': ;
@@ -408,15 +435,6 @@ node "buildbot-master54.bb.releng.usw2.mozilla.com" {
             basedir => "tests1-linux64";
     }
     include toplevel::server::buildmaster::mozilla
-}
-
-node "buildbot-master66.bb.releng.usw2.mozilla.com" {
-    # Not actually a master; see
-    #   https://bugzilla.mozilla.org/show_bug.cgi?id=990173
-    #   https://bugzilla.mozilla.org/show_bug.cgi?id=990172
-    $aspects = [ 'high-security' ]
-    include toplevel::server::buildmaster::mozilla
-    include toplevel::mixin::b2g_bumper
 }
 
 node "buildbot-master67.bb.releng.use1.mozilla.com" {
@@ -675,7 +693,6 @@ node "buildbot-master91.bb.releng.usw2.mozilla.com" {
     }
     include toplevel::server::buildmaster::mozilla
     include toplevel::mixin::funsize_scheduler
-    include toplevel::mixin::nightlypromotion
 }
 
 node "buildbot-master94.bb.releng.use1.mozilla.com" {
@@ -1006,6 +1023,105 @@ node "buildbot-master131.bb.releng.usw2.mozilla.com" {
             http_port => 8201,
             master_type => "tests",
             basedir => "tests1-linux64";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master132.bb.releng.scl3.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm132-tests1-macosx":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-macosx";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master133.bb.releng.scl3.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm133-tests1-macosx":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-macosx";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master134.bb.releng.scl3.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm134-tests1-macosx":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-macosx";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master135.bb.releng.scl3.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm135-tests1-macosx":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-macosx";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master136.bb.releng.scl3.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm136-tests1-macosx":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-macosx";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master137.bb.releng.use1.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm137-tests1-windows":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-windows";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master138.bb.releng.use1.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm138-tests1-windows":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-windows";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master139.bb.releng.usw2.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm139-tests1-windows":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-windows";
+    }
+    include toplevel::server::buildmaster::mozilla
+}
+
+node "buildbot-master140.bb.releng.usw2.mozilla.com" {
+    $aspects = [ 'high-security' ]
+    buildmaster::buildbot_master::mozilla {
+        "bm140-tests1-windows":
+            http_port => 8201,
+            master_type => "tests",
+            basedir => "tests1-windows";
     }
     include toplevel::server::buildmaster::mozilla
 }

@@ -41,7 +41,11 @@ class cruncher::allthethings {
             group   => "${users::buildduty::group}",
             require => [
                 Python::Virtualenv["/home/buildduty/allthethings"],
+<<<<<<< HEAD
             ]; 
+=======
+            ];
+>>>>>>> upstream/master
     }
 
     mercurial::repo {
