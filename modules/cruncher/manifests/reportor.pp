@@ -67,7 +67,5 @@ class cruncher::reportor {
             require => [
                 Exec["reportor-setup"],
             ];
-
->>>>>>> upstream/master
     }
 }
